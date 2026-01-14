@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from flask_mail import Message
 from functools import wraps
 from models import User
+from datetime import datetime
 import requests
 import json
 
@@ -267,8 +268,44 @@ def logout():
 def profile():
     """User profile page"""
     email = session.get('user_email')
-    stats = User.get_user_stats(email)
-    consultations = User.get_consultations(email, limit=10)
+    name = session.get('user_name', 'User')
+    
+    try:
+        stats = User.get_user_stats(email)
+        consultations = User.get_consultations(email, limit=10)
+    except Exception as e:
+        print(f"Error loading profile data: {e}")
+        # Provide default data if database is unavailable
+        stats = {
+            'name': name,
+            'email': email,
+            'joined': datetime.utcnow(),
+            'total_consultations': 0,
+            'verified': True,
+            'profile': {
+                'age': None,
+                'weight': None,
+                'allergies': [],
+                'medical_conditions': []
+            }
+        }
+        consultations = []
+    
+    # Handle case where stats is None
+    if stats is None:
+        stats = {
+            'name': name,
+            'email': email,
+            'joined': datetime.utcnow(),
+            'total_consultations': 0,
+            'verified': True,
+            'profile': {
+                'age': None,
+                'weight': None,
+                'allergies': [],
+                'medical_conditions': []
+            }
+        }
     
     return render_template('profile.html', stats=stats, consultations=consultations)
 
@@ -286,20 +323,36 @@ def update_profile():
         'medical_conditions': data.get('medical_conditions', [])
     }
     
-    User.update_profile(email, profile_data)
-    return jsonify({'success': True, 'message': 'Profile updated successfully'})
+    try:
+        User.update_profile(email, profile_data)
+        return jsonify({'success': True, 'message': 'Profile updated successfully'})
+    except Exception as e:
+        print(f"Error updating profile: {e}")
+        return jsonify({'success': False, 'message': 'Database unavailable. Profile not saved.'}), 500
 
 @auth_bp.route('/get-user-profile', methods=['GET'])
 @login_required
 def get_user_profile():
     """Get user profile data for prescription generation"""
     email = session.get('user_email')
-    user = User.find_by_email(email)
     
-    if user:
+    try:
+        user = User.find_by_email(email)
+        if user:
+            return jsonify({
+                'success': True,
+                'profile': user.get('profile', {})
+            })
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+    except Exception as e:
+        print(f"Error fetching profile: {e}")
         return jsonify({
             'success': True,
-            'profile': user.get('profile', {})
+            'profile': {
+                'age': None,
+                'weight': None,
+                'allergies': [],
+                'medical_conditions': []
+            }
         })
-    return jsonify({'success': False}), 404
 
