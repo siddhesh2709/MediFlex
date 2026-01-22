@@ -50,3 +50,5 @@ Thumbs.db
 # Model files (optional - uncomment if models are large)
 # *.h5
 # *.pkl
+
+.vercel
