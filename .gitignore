@@ -52,6 +52,9 @@ Thumbs.db
 # *.pkl
 
 .vercel
+*.zip
+*.h5
+*.tar.gz
 
 # Ignore the mediflex-key.pem file
 mediflex-key.pem
