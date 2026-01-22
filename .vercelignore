@@ -1,0 +1,7 @@
+# Exclude virtual environment
+venv/
+
+# Exclude large files
+*.zip
+*.h5
+*.tar.gz

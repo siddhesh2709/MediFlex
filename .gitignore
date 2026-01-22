@@ -55,6 +55,6 @@ Thumbs.db
 *.zip
 *.h5
 *.tar.gz
-
+venv/
 # Ignore the mediflex-key.pem file
 mediflex-key.pem
