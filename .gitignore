@@ -51,10 +51,13 @@ Thumbs.db
 # *.h5
 # *.pkl
 
-.vercel
-*.zip
-*.h5
-*.tar.gz
-venv/
+# .vercel
+# *.zip
+# *.h5
+# *.tar.gz
+# venv/
 # Ignore the mediflex-key.pem file
 mediflex-key.pem
+
+# Local Netlify folder
+.netlify
